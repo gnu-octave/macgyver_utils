@@ -33,13 +33,16 @@ function memory()
       
       # open /proc/<pid>/statm
       statm     = fopen(sprintf("/proc/%d/statm", PID), "r");
-      mem       = sscanf(fread(statm, "char=>char").', "%d ")'([1 6]);
+      # statm is measured in pages. the pagesize is 4096 bytes
+      mem       = sscanf(fread(statm, "char=>char").', "%d ")'([1 2 3 6]) * 4 / 1024;
       fclose(statm);
       
       # print verbose output
-      fprintf("\n Total memory usage by GNU Octave: \t %g MB", mem(1)/1024)
-      fprintf("\n Data + Stack Size: \t\t\t %g MB", mem(2)/1024)
-      fprintf("\n Physical Memory (RAM): \t\t %g MB\n\n", total/1024)
+      fprintf("\n Total memory usage by GNU Octave (VmSize): \t %g MB", mem(1))
+      fprintf("\n RSS Size: \t\t\t\t\t %g MB", mem(2))
+      fprintf("\n shared pages: \t\t\t\t\t %g MB", mem(3))
+      fprintf("\n data + stack size: \t\t\t\t %g MB", mem(4))
+      fprintf("\n Physical Memory (RAM): \t\t\t %g MB\n\n", total/1024)
 
     else
       error("Function MEMORY is not available on this platform.")
