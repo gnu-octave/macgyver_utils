@@ -1,4 +1,4 @@
-## Copyright (C) 2012 Markus Bergholz <markuman@gmail.com>
+## Copyright (C) 2012 - 2015 Markus Bergholz <markuman@gmail.com>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -18,70 +18,32 @@
 ##
 ## memory returns information about how much physical
 ## memory is available and how much is currently being
-## used by Octave without shared libraries.
-##
-## It just support Linux Plattform
-##
-## Linux Dependencies: pmap awk free (should be out of the box available on every distribution)
-##
-## Never testet on Mac
-##
-## MAC Dependencies: vmmap awk top
-## pkg-config, gnu-sed, texinfo, fftw, readline, suite-sparse, glpk, graphicsmagick, hdf5, pcre, 
-## fltk, qhull, qrupdate
+## used by Octave
 
+function memory()
 
+    if isunix
+    
+      # open /proc/meminfo 
+      meminfo   = fopen("/proc/meminfo", "r");
+      PID     = getpid;
+      total   = str2double(cell2mat(cell2mat(regexp(fread(meminfo, "char=>char").', "MemTotal:(.*?) kB\n", "tokens"))));
+      fclose(meminfo);
 
-if isunix == 1
+      
+      # open /proc/<pid>/statm
+      statm     = fopen(sprintf("/proc/%d/statm", PID), "r");
+      mem       = sscanf(fread(statm, "char=>char").', "%d ")'([1 6]);
+      fclose(statm);
+      
+      # print verbose output
+      fprintf("\n Total memory usage by GNU Octave: \t %g MB", mem(1)/1024)
+      fprintf("\n Data + Stack Size: \t\t\t %g MB", mem(2)/1024)
+      fprintf("\n Physical Memory (RAM): \t\t %g MB\n\n", total/1024)
 
-	% Process's memory incl. shares libraries
-	% Programm + Heap + Stack
-	% Virtual size (in paging space) in kilobytes of the data section of the process (displayed as SZ by other flags).
+    else
+      error("Function MEMORY is not available on this platform.")
 
-	%% [~,memory.size]=system(sprintf("pmap -x %g |awk '/total/ { print $3 }'",getpid));
-	%% memory.size=str2num (memory.size);
-
-	% RSS = Resident Set Size
-	% The resident set size is the portion of a process's memory that is held in RAM
-	% Real-memory (resident set) size in kilobytes of the process
-
-	[~,memory.rss]=system(sprintf("pmap -x %g |awk '/total/ { print $4 }'",getpid));
-	memory.rss=str2num (memory.rss);
-
-	% Dirty Pages
-
-	%% [~,memory.dirty]=system(sprintf("pmap -x %g |awk '/total/ { print $5 }'",getpid));
-	%% memory.dirty=str2num (memory.dirty);
-
-	% Available physical RAM
-
-	[~,memory.available]=system("free|awk '/Mem:/ { print $2 }'");
-	memory.available=str2num (memory.available);
-
-
-	fprintf("\n Memory used by Octave:   %g MB \n", memory.rss/1024)
-%	fprintf(" Dirty Pages used by Octave:   %g MB \n", memory.dirty/1024)
-%	fprintf(" Octave + Heap + Stack:   %g MB \n", memory.size/1024)
-	fprintf(" Physical Memory (RAM): %g MB \n\n", memory.available/1024)
-	clear memory
-
-elseif ismac == 1
-
-	[~,memory.available]=system(sprintf("top -l 1 | awk '/PhysMem:/ {print $10}'"));
-	memory.available=str2num (memory.available);
-
-        [~,memory.rss]=system(sprintf("vmmap -resident %g |awk '/TOTAL/ { print $3 }'|head -1",getpid));
-        memory.rss=str2num (memory.rss);
-
-	fprintf("\n Memory used by Octave:   %g MB \n", memory.rss)
-	fprintf(" Physical Memory (RAM): %g MB \n\n", memory.available/1024)
-	clear memory
-
-elseif ispc == 1
-	error('Function MEMORY is not available on this platform.')
-
-else 
-	error('Function MEMORY is not available on unknown platforms.')
-
-end
+    endif
+endfunction
 
