@@ -19,6 +19,8 @@ macgyver_utils
   * use git directly from octave
 * serialize
   * serialize your workspace
+* MU_Framework
+  * easy to use Measurment Uncertainty framework using MonteCarloSimulations (GUM S1)
 
 ### licence
 
