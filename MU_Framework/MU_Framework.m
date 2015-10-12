@@ -33,8 +33,8 @@ set_value	= 1
 ###
 
 
-### ANGABE [dB] UND UMRECHNUNG [%] DER UNSICHERHEITEN - PLEASE TOUCH
-### BERECHNUNG ERFOLGT IN PROZENT!!!
+### VALUES GIVEN IN [dB] AND RECALCULATED TO [%] - PLEASE TOUCH
+### CALCULATION IS DONE IN PERCENT!!!
 
 #dB.test          = 1.00;		Uncertainty in dB
 #percent.test     = 10^(test/20);	Uncertainty in % (calculation value!!!)
