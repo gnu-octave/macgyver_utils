@@ -1,5 +1,6 @@
 ## Copyright (C) 2012 - 2015 Markus Bergholz <markuman@gmail.com>
-##
+## Copyright (C) 2015 JuanPi Carbajal <ajuanpi+dev@gmail.com>
+
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
 ## Foundation; either version 3 of the License, or (at your option) any later
@@ -20,33 +21,46 @@
 ## memory is available and how much is currently being
 ## used by Octave
 
-function memory()
+function m = memory()
 
     if isunix
-    
-      # open /proc/meminfo 
-      meminfo   = fopen("/proc/meminfo", "r");
+
+      # open /proc/meminfo
+      meminfo = fopen ("/proc/meminfo", "r");
       PID     = getpid;
-      total   = str2double(cell2mat(cell2mat(regexp(fread(meminfo, "char=>char").', "MemTotal:(.*?) kB\n", "tokens"))));
-      fclose(meminfo);
+      total   = str2double ( ...
+                cell2mat (cell2mat ( ...
+                regexp( ...
+                fread(meminfo, "char=>char").', ...
+                "MemTotal:(.*?) kB\n", "tokens"))));
 
-      
+      fclose (meminfo);
+
       # open /proc/<pid>/statm
-      statm     = fopen(sprintf("/proc/%d/statm", PID), "r");
+      statm = fopen (sprintf ("/proc/%d/statm", PID), "r");
       # statm is measured in pages. the pagesize is 4096 bytes
-      mem       = sscanf(fread(statm, "char=>char").', "%d ")'([1 2 3 6]) * 4 / 1024;
-      fclose(statm);
-      
-      # print verbose output
-      fprintf("\n Total memory usage by GNU Octave (VmSize): \t %g MB", mem(1))
-      fprintf("\n RSS Size: \t\t\t\t\t %g MB", mem(2))
-      fprintf("\n shared pages: \t\t\t\t\t %g MB", mem(3))
-      fprintf("\n data + stack size: \t\t\t\t %g MB", mem(4))
-      fprintf("\n Physical Memory (RAM): \t\t\t %g MB\n\n", total/1024)
+      mem   = sscanf ( ...
+              fread (statm, "char=>char").', ...
+               "%d ").'([1 2 3 6]) * 4 / 1024;
+      fclose (statm);
 
+      if (nargout < 1)
+        # print verbose output
+        fprintf (["\n Total memory usage by \
+                   GNU Octave (VmSize): \t %g MB"], mem(1));
+        fprintf ("\n RSS Size: \t\t\t\t\t %g MB", mem(2));
+        fprintf ("\n shared pages: \t\t\t\t\t %g MB", mem(3));
+        fprintf ("\n data + stack size: \t\t\t\t %g MB", mem(4));
+        fprintf ("\n Physical Memory (RAM): \
+                    \t\t\t %g MB\n\n", total/1024);
+        fflush (stdout);
+      endif
+
+      m = struct ("total",mem(1),"rss",mem(2), ...
+                  "shared",mem(3),"data",mem(4), ...
+                  "physical", total/1024);
     else
-      error("Function MEMORY is not available on this platform.")
-
+      error ("Function MEMORY is not available on this platform.");
     endif
-endfunction
 
+endfunction
