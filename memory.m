@@ -20,7 +20,7 @@
 ## memory is available and how much is currently being
 ## used by Octave
 
-function memory()
+function m = memory()
 
     if isunix
     
@@ -43,6 +43,10 @@ function memory()
       fprintf("\n shared pages: \t\t\t\t\t %g MB", mem(3))
       fprintf("\n data + stack size: \t\t\t\t %g MB", mem(4))
       fprintf("\n Physical Memory (RAM): \t\t\t %g MB\n\n", total/1024)
+
+      m = struct ("total",mem(1),"rss",mem(2), ...
+                  "shared",mem(3),"data",mem(4), ...
+                  "physical", total/1024);
 
     else
       error("Function MEMORY is not available on this platform.")
