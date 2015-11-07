@@ -23,7 +23,7 @@
 
 function m = memory()
 
-    if isunix
+    if (isunix && ~ismac)
 
       # open /proc/meminfo
       meminfo = fopen ("/proc/meminfo", "r");
@@ -33,7 +33,6 @@ function m = memory()
                 regexp( ...
                 fread(meminfo, "char=>char").', ...
                 "MemTotal:(.*?) kB\n", "tokens"))));
-
       fclose (meminfo);
 
       # open /proc/<pid>/statm
