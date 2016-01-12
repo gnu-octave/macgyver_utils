@@ -64,7 +64,11 @@ function ret = __serialize_matrix__(m)
       endfor
       ret(end) = ']';
     else
-      ret = mat2str (m);
+      if (isa (m, "double") || isa (m, "int64") || isa (m, "uint64"))
+        ret = mat2str (m, 20, "class");
+      else
+        ret = mat2str (m);
+      endif
     endif
   else
     s = size (m);
@@ -151,12 +155,20 @@ endfunction
 %!endfunction
 
 ## [complex] scalars
-%!test check_it (int8(5))
-%!test check_it (uint8(5))
-%!test check_it (int16(-500))
+%!test check_it (int8 (intmax ("int8")))
+%!test check_it (int8 (intmin ("int8")))
+%!test check_it (uint8 (intmax ("uint8")))
+%!test check_it (int16 (intmax ("int16")))
+%!test check_it (uint16 (intmax ("uint16")))
+%!test check_it (int32 (intmax ("int32")))
+%!test check_it (uint32 (intmax ("uint32")))
+%!test check_it (int64 (intmax ("int64")))
+%!test check_it (int64 (intmin ("int64")))
+%!test check_it (uint64 (intmax ("uint64")))
 %!test check_it (1.23456)
-%!test check_it (1.23456i)
-%!test check_it (-1.23456j)
+%!test check_it (pi)
+%!test check_it (single (pi))
+%!test check_it (pi - 2 * pi * j)
 
 ## Inf, NA, NaN
 %!test check_it ([1 2 inf NA NaN])
@@ -174,15 +186,17 @@ endfunction
 %! assert(eval(b), a, 16*eps);
 
 ## random > 2D matrix
-%!test check_it (rand(2,3,4));                 ## random 3D
-%!test check_it (rand (2,3,4,5));              ## random 4D
-%!test check_it (randi (3e4,2,3,4,5,"int16")); ## random int16 4D
-%!test check_it (rand (2,3,4,5,2));            ## random 5D
+%!test check_it (rand (2, 3, 4));                 ## random 3D
+%!test check_it (rand (2, 3, 4, 5));              ## random 4D
+%!test check_it (randi (3e4, 2, 3, 4, 5, "int16")); ## random int16 4D
+%!test check_it (rand (2, 3, 4, 5, 2));            ## random 5D
 
 ## strings
 %!test check_it ("huhu");
 %!test check_it ("hello world\nsecond line");
 %!test check_it ('hello world\nstill first line');
+%!test check_it ('foo"bar');
+%!test check_it ("foo'bar");
 %!test check_it (["hello";"hi"]);
 %!test check_it (cat(3, ["hi ";"ho "], ["xyz";"x"]));
 
@@ -231,3 +245,7 @@ endfunction
 %!test check_it (struct("foo", {{3,4,5}}))
 %!test check_it (struct("foo", {1, 2}, "bar", {{1,2},{3,4}}))
 %!test check_it (struct("foo", {{1,2;10,11},{3;4;5}}))
+
+## sanitize functions in mind...
+%!test check_it ("system");
+%!test check_it ("unlink");
