@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {@var{r} =} uniq_c (@var{x})
+## @deftypefn {Function File} {[@var{cal}, @var{cnt}] =} uniq_c (@var{x})
 ## Return the unique elements and their number of occurrence.
 ##
 ## This should be equivalent to the default GNU/Linux command
