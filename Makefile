@@ -1,6 +1,6 @@
 # handcrafted Makefile
 
-TARGETS = grab.oct peakdet.oct
+TARGETS = grab.oct peakdet.oct crc16.oct
 
 all: $(TARGETS)
 
