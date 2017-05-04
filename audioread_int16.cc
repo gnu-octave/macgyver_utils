@@ -23,19 +23,7 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301  USA
 */
 
-#include <string>
-#include <map>
-
-#include "oct-locbuf.h"
-#include "unwind-prot.h"
-
 #include "defun-dld.h"
-#include "error.h"
-#include "errwarn.h"
-#include "ovl.h"
-#include "ov.h"
-#include "ov-struct.h"
-#include "pager.h"
 
 #include <sndfile.h>
 
