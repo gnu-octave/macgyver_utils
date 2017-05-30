@@ -53,10 +53,10 @@ DEFUN_DLD (audioread_int16, args, , "audioread_int16 (@var{filename})")
 
   frame.add_fcn (safe_close, file);
 
-  int16NDArray audio (dim_vector (info.frames, info.channels));
+  int16NDArray audio (dim_vector (info.channels, info.frames));
   octave_int16 *paudio = audio.fortran_vec ();
 
   sf_read_short (file, (short *) paudio, info.frames * info.channels);
 
-  return ovl (audio, info.samplerate);
+  return ovl (audio.transpose (), info.samplerate);
 }
