@@ -1,5 +1,6 @@
-## Copyright (C) 2012 - 2015 Markus Bergholz <markuman@gmail.com>
+## Copyright (C) 2012 - 2019 Markus Bergholz <markuman@gmail.com>
 ## Copyright (C) 2015 JuanPi Carbajal <ajuanpi+dev@gmail.com>
+## Copyright (C) 2019 Philip Nienhuis
 
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -57,7 +58,13 @@ function m = memory()
                   "shared",mem(3),"data",mem(4), ...
                   "physical", total/1024);
     else
-      error ("Function MEMORY is not available on this platform.");
+      process = "octave";
+      [~, d] = system ("tasklist");
+      d = strsplit (d, "\n")';
+      try
+	d = d(strncmpi (d, process, length (process)));
+	m = cellfun (@(x) sscanf (strrep (x(65:end), " ", ""), "%d"), d, "uni", 1);
+      end_try_catch
     endif
 
 endfunction
