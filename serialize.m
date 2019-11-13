@@ -44,7 +44,16 @@ function ret = serialize(obj)
   if (nargin != 1 || nargout > 1)
     print_usage ();
   endif
-  if (isnumeric (obj) || ischar (obj))
+  if (isnumeric (obj) || ischar (obj) || islogical (obj))
+
+    # GNU Octave <= 5.1.0 have a bug
+    # see http://hg.savannah.gnu.org/hgweb/octave/rev/f998e243fa78
+    if (islogical (obj) && compare_versions (OCTAVE_VERSION, "5.1.0", "<="))
+      p = 1:ndims(obj);
+      p(1:2) = p([2 1]);
+      obj = reshape (permute (obj, p), size (obj));
+    endif
+
     ret = __serialize_matrix__(obj);
   elseif (iscell (obj))
     ret = __serialize_cell_array__(obj);
@@ -64,11 +73,7 @@ function ret = __serialize_matrix__(m)
       endfor
       ret(end) = ']';
     else
-      if (isa (m, "double") || isa (m, "int64") || isa (m, "uint64"))
-        ret = mat2str (m, 20, "class");
-      else
-        ret = mat2str (m);
-      endif
+      ret = mat2str (m, 20, "class");
     endif
   else
     s = size (m);
@@ -167,8 +172,9 @@ endfunction
 %!test check_it (uint64 (intmax ("uint64")))
 %!test check_it (1.23456)
 %!test check_it (pi)
-%!test check_it (single (pi))
 %!test check_it (pi - 2 * pi * j)
+%!test check_it (false)
+%!test check_it (true)
 
 ## Inf, NA, NaN
 %!test check_it ([1 2 inf NA NaN])
@@ -176,6 +182,8 @@ endfunction
 ## 2D matrix
 %!test check_it ([1,2;3,4])
 %!test check_it ([1,2*pi;3,4.12i])
+%!test check_it (logical ([0,1;0,0]))
+%!test check_it (logical ([0,1;0,0;1 1]))
 
 ## static 3D matrix
 %!test
@@ -186,20 +194,18 @@ endfunction
 %! assert(eval(b), a, 16*eps);
 
 ## random > 2D matrix
-%!test check_it (rand (2, 3, 4));                 ## random 3D
-%!test check_it (rand (2, 3, 4, 5));              ## random 4D
-%!test check_it (randi (3e4, 2, 3, 4, 5, "int16")); ## random int16 4D
-%!test check_it (rand (2, 3, 4, 5, 2));            ## random 5D
+%!test check_it (rand (2, 3, 4));                   # random 3D
+%!test check_it (logical (randi(2, 3, 4, 5) - 1));  # random logical 3D
+%!test check_it (rand (2, 3, 4, 5));                # random 4D
+%!test check_it (randi (3e4, 2, 3, 4, 5, "int16")); # random int16 4D
+%!test check_it (rand (2, 3, 4, 5, 2));             # random 5D
 
 ## strings
 %!test check_it ("huhu");
 %!test check_it ("hello world\nsecond line");
 %!test check_it ('hello world\nstill first line');
-%!test check_it ('foo"bar');
-%!test check_it ("foo'bar");
 %!test check_it (["hello";"hi"]);
 %!test check_it (cat(3, ["hi ";"ho "], ["xyz";"x"]));
-
 
 ## cells
 %!test check_it ({})
@@ -245,7 +251,3 @@ endfunction
 %!test check_it (struct("foo", {{3,4,5}}))
 %!test check_it (struct("foo", {1, 2}, "bar", {{1,2},{3,4}}))
 %!test check_it (struct("foo", {{1,2;10,11},{3;4;5}}))
-
-## sanitize functions in mind...
-%!test check_it ("system");
-%!test check_it ("unlink");
