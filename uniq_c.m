@@ -1,4 +1,4 @@
-## Copyright (C) 2016 Andreas Weber <octave@tech-chat.de>
+## Copyright (C) 2016-2021 Andreas Weber <octave@tech-chat.de>
 ##
 ## This program is free software; you can redistribute it and/or modify it under
 ## the terms of the GNU General Public License as published by the Free Software
@@ -14,7 +14,7 @@
 ## this program; if not, see <http://www.gnu.org/licenses/>.
 
 ## -*- texinfo -*-
-## @deftypefn {Function File} {[@var{cal}, @var{cnt}] =} uniq_c (@var{x})
+## @deftypefn {Function File} {[@var{val}, @var{cnt}] =} uniq_c (@var{x})
 ## Return the unique elements and their number of occurrence.
 ##
 ## This should be equivalent to the default GNU/Linux command
